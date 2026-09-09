@@ -1,6 +1,7 @@
 ---
 name: subagent-impl
-description: 按 to-spec / to-tickets 产出的票据集，为每张票派发一个子代理（点名调用 implement 技能实施）、严格按票面声明的顺序串行实现，上一张票验收全部通过后才开始下一张；全部完成后用 code-review 对自基准 revision 以来的变更做 Standards/Spec 双轴终审。当用户指向一组票据（本地票据文件或 tracker issues）并要求派发子代理把它们全部做完时使用。
+description: "to-spec / to-tickets 票据集的串行实现编排：逐票派发子代理（点名 implement 技能实施），逐票验收，全部完成后 code-review 全量终审。"
+disable-model-invocation: true
 ---
 
 # 子代理串行实现
