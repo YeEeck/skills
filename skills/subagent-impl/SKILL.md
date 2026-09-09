@@ -1,33 +1,33 @@
 ---
 name: subagent-impl
-description: Implement all tickets from a to-spec / to-tickets plan by dispatching one subagent per ticket, strictly serially in the order the tickets declare, verifying every acceptance criterion before the next ticket starts. Use when the user points at a ticket set — local ticket files or tracker issues — and asks you to delegate the work to subagents and finish all of it.
+description: 按 to-spec / to-tickets 产出的票据集，为每张票派发一个子代理、严格按票面声明的顺序串行实现，上一张票验收全部通过后才开始下一张。当用户指向一组票据（本地票据文件或 tracker issues）并要求派发子代理把它们全部做完时使用。
 ---
 
-# Subagent Implementation (serial)
+# 子代理串行实现
 
-You orchestrate; subagents execute. One subagent per ticket, **serially**: each ticket's verified result is the **premise** for the next.
+你负责编排；执行交给子代理。每张票一个子代理，**串行**：上一张票经验证的结果，是下一张票的**前提**。
 
-The tickets already fix the order — `to-tickets` numbers them blockers-first and each one declares its **Blocked by** edges. Follow that order; do not re-plan it.
+顺序已经由票据定好——`to-tickets` 按依赖优先编号，每张票都声明了自己的 **Blocked by** 边。照这个顺序走，不要重新规划。
 
-## 1. Load the ticket set
+## 1. 载入票据集
 
-Identify the tickets the user points at — local ticket files (e.g. `.scratch/<feature-slug>/issues/`) or tracker issues, wherever `to-tickets` published them — and read every one.
+找到用户指向的票据——本地票据文件（如 `.scratch/<feature-slug>/issues/`）或 tracker issues，取决于 `to-tickets` 发布到了哪里——并全部读一遍。
 
-Done when: you hold the complete list in execution order — a ticket becomes eligible only once its blockers are verified.
+完成标志：手中握有按执行顺序排好的完整清单——一张票只有在其所有阻塞项都经验证后才算就绪。
 
-## 2. Run the ladder, one rung at a time
+## 2. 一轮一张，串行推进
 
-Run exactly one ticket at a time even when several are eligible at once — serial is the contract: it keeps each premise verified before anything builds on it, and keeps subagents off each other's working tree.
+即使同时有多张票就绪，也一轮只跑一张——串行是契约：它保证每个前提在被依赖之前已经过验证，也让子代理之间互不踩对方的工作树。
 
-For each ticket:
+对每张票：
 
-1. **Dispatch** a subagent (whatever subagent mechanism this environment provides) with a **self-contained** prompt — it does not see this conversation. Include: the ticket body verbatim; where the code lives; the premises — what earlier tickets changed and how they were verified; the acceptance criteria as the contract; and an instruction to report exactly what it changed.
-2. **Wait** for it to finish before dispatching the next ticket.
-3. **Verify** the result yourself against every acceptance criterion — read the diff, run the tests or typecheck. On failure, re-dispatch the same ticket with the failing criteria stated in its prompt as the correction.
-4. **Tick and record** — mark the verified criteria done in the ticket (file checkbox or tracker), and note for later tickets what this one changed and decided.
+1. **派发**一个子代理（用当前环境提供的子代理机制），prompt 必须**自包含**——它看不到本次会话。要包含：票据正文原样贴入；代码位置；前提——先前各票改了什么、如何验证通过的；把验收标准当作契约交给它；并要求它如实报告自己改了什么。
+2. **等待**其结束，才派发下一张票。
+3. **亲自验证**每一条验收标准——读 diff、跑测试或 typecheck。不通过，就把失败的标准当作修正意见写进 prompt，重派同一张票。
+4. **勾选并记录**——在票据里（文件勾选项或 tracker）把验证通过的标准勾掉，并为后面的票记下这轮改了什么、定了什么决策。
 
-Done when: every ticket is verified and its criteria ticked.
+完成标志：所有票据验证通过、验收标准全部勾选。
 
-## 3. Report
+## 3. 汇报
 
-Per ticket: what landed, the verification result, and any re-dispatch it took.
+逐票汇报：落地了什么、验证结果、是否发生过重派。

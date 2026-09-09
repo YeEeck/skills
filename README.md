@@ -16,4 +16,4 @@ npx skills add ./skills --skill subagent-impl -g
 
 | Skill | What it does |
 | --- | --- |
-| [`subagent-impl`](skills/subagent-impl/SKILL.md) | Downstream of `to-spec`/`to-tickets`: dispatch one subagent per ticket, strictly serially in ticket order, verifying each before the next. |
+| [`subagent-impl`](skills/subagent-impl/SKILL.md) | `to-spec`/`to-tickets` 的下游：每张票派发一个子代理，严格按票据顺序串行实现，逐票验收。 |
