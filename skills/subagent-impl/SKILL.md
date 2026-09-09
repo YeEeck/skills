@@ -1,35 +1,33 @@
 ---
 name: subagent-impl
-description: Complete a list of tasks by dispatching subagents one at a time, in an order you derive from their dependencies, verifying each result before starting the next. Use when the user hands over a task list, spec, or tickets and asks you to delegate the work to subagents and finish all of it serially.
+description: Implement all tickets from a to-spec / to-tickets plan by dispatching one subagent per ticket, strictly serially in the order the tickets declare, verifying every acceptance criterion before the next ticket starts. Use when the user points at a ticket set — local ticket files or tracker issues — and asks you to delegate the work to subagents and finish all of it.
 ---
 
 # Subagent Implementation (serial)
 
-You orchestrate; subagents execute. One subagent per task, **serially**: each task's verified result is the **premise** for the next.
+You orchestrate; subagents execute. One subagent per ticket, **serially**: each ticket's verified result is the **premise** for the next.
 
-## 1. Establish the task list
+The tickets already fix the order — `to-tickets` numbers them blockers-first and each one declares its **Blocked by** edges. Follow that order; do not re-plan it.
 
-Take the tasks from the user's request, spec, or tickets. A task is one unit of work a fresh agent could complete on its own; split anything with two independent deliverables.
+## 1. Load the ticket set
 
-Done when: every piece of the user's ask appears exactly once on the list.
+Identify the tickets the user points at — local ticket files (e.g. `.scratch/<feature-slug>/issues/`) or tracker issues, wherever `to-tickets` published them — and read every one.
 
-## 2. Derive the order
+Done when: you hold the complete list in execution order — a ticket becomes eligible only once its blockers are verified.
 
-Sort by dependency: a task whose output others consume (scaffolding, interfaces, shared types, migrations) runs before its consumers; integration and final verification run last. The order is yours to derive from the tasks themselves.
+## 2. Run the ladder, one rung at a time
 
-Done when: the list is in one serial order, and each task names what it consumes from earlier tasks.
+Run exactly one ticket at a time even when several are eligible at once — serial is the contract: it keeps each premise verified before anything builds on it, and keeps subagents off each other's working tree.
 
-## 3. Run the ladder, one rung at a time
+For each ticket:
 
-For each task, in order:
+1. **Dispatch** a subagent (whatever subagent mechanism this environment provides) with a **self-contained** prompt — it does not see this conversation. Include: the ticket body verbatim; where the code lives; the premises — what earlier tickets changed and how they were verified; the acceptance criteria as the contract; and an instruction to report exactly what it changed.
+2. **Wait** for it to finish before dispatching the next ticket.
+3. **Verify** the result yourself against every acceptance criterion — read the diff, run the tests or typecheck. On failure, re-dispatch the same ticket with the failing criteria stated in its prompt as the correction.
+4. **Tick and record** — mark the verified criteria done in the ticket (file checkbox or tracker), and note for later tickets what this one changed and decided.
 
-1. **Dispatch** a subagent (whatever subagent/background-agent mechanism this environment provides) with a **self-contained** prompt — it does not see this conversation. Include: the task; where the code lives; the premises, i.e. exactly what earlier tasks produced (files, interfaces, decisions); acceptance criteria; and that its result will be verified.
-2. **Wait** for it to finish before dispatching the next — subagents share the working tree, so overlap means collisions.
-3. **Verify** against the acceptance criteria before the result becomes a premise: read the diff, run the tests or typecheck the repo has. On failure, re-dispatch the same task with the correction stated in its prompt.
-4. **Record** what the next tasks must know: what changed, where, and what was decided.
+Done when: every ticket is verified and its criteria ticked.
 
-Done when: every task on the list has passed verification.
+## 3. Report
 
-## 4. Report
-
-Summarize per task: what its subagent did, the verification result, and any deviation from the original order.
+Per ticket: what landed, the verification result, and any re-dispatch it took.

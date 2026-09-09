@@ -16,4 +16,4 @@ npx skills add ./skills --skill subagent-impl -g
 
 | Skill | What it does |
 | --- | --- |
-| [`subagent-impl`](skills/subagent-impl/SKILL.md) | Complete a task list by dispatching subagents one at a time, in dependency order, verifying each result before the next. |
+| [`subagent-impl`](skills/subagent-impl/SKILL.md) | Downstream of `to-spec`/`to-tickets`: dispatch one subagent per ticket, strictly serially in ticket order, verifying each before the next. |
