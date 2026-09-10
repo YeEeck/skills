@@ -1,7 +1,7 @@
 ---
 name: subagent-impl
-description: "to-spec / to-tickets 票据集的串行实现编排：逐票派发子代理（点名 implement 技能实施），逐票验收，全部完成后 code-review 全量终审。"
 disable-model-invocation: true
+description: 按 to-spec / to-tickets 产出的票据集，为每张票派发一个子代理（实施纪律内联进派发 prompt，不点名其他技能）、严格按票面声明的顺序串行实现，上一张票验收全部通过后才开始下一张；全部完成后用 code-review 对自基准 revision 以来的变更做 Standards/Spec 双轴终审。当用户指向一组票据（本地票据文件或 tracker issues）并要求派发子代理把它们全部做完时使用。
 ---
 
 # 子代理串行实现
@@ -22,7 +22,10 @@ disable-model-invocation: true
 
 对每张票：
 
-1. **派发**一个子代理（用当前环境提供的子代理机制），prompt 必须**自包含**——它看不到本次会话。要包含：票据正文原样贴入；代码位置；前提——先前各票改了什么、如何验证通过的；验收标准即契约；并要求它**调用 `implement` 技能来实施本票**（`implement` 是 user-invoked，不会自发触发——必须在 prompt 里点名，按其环境支持的方式：`/implement` 调用，或指示它先加载 `implement` 技能再动工）。实现纪律以 `implement` 为准，不在 prompt 里重写。最后要求它如实报告自己改了什么。
+1. **派发**一个子代理（用当前环境提供的子代理机制），prompt 必须**自包含**——它看不到本次会话，也不该被要求去加载任何技能。要包含：票据正文原样贴入；代码位置；前提——先前各票改了什么、如何验证通过的；验收标准即契约；以及下面这段**实施纪律**（原样内联，别改成"去调用 `implement` 技能"——`implement` 带 `disable-model-invocation`，子代理既在目录里看不到它，调 `skill` 工具也会被拒：`skill "implement" is not available for model invocation`）。最后要求它如实报告自己改了什么。
+
+   > 实施纪律（原样贴进派发 prompt）：
+   > 按票面描述实施这张票。能在**事先约定的接缝**上用 TDD 就用（加载 `tdd` 技能）；没约好接缝的改动直接写，但说明为什么。频繁跑 typecheck、常跑单个测试文件、收尾时跑一次全量测试套件，并在汇报里给出实际执行的命令与结果。**不要**自己调用 `code-review`——终审由编排者在所有票完成后统一做；跳过一次自审。改完就停在工作树里，**不要提交**，编排者要亲自读 diff 验证。
 2. **等待**其结束，才派发下一张票。
 3. **亲自验证**每一条验收标准——读 diff、跑测试或 typecheck。不通过，就把失败的标准当作修正意见写进 prompt，重派同一张票。
 4. **勾选并记录**——在票据里（文件勾选项或 tracker）把验证通过的标准勾掉，并为后面的票记下这轮改了什么、定了什么决策。
