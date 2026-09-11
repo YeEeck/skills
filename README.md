@@ -1,15 +1,32 @@
 # skills
 
-Personal [Agent Skills](https://agentskills.io) collection, in the layout the [`skills` CLI](https://github.com/vercel-labs/skills) discovers: each skill is a directory under `skills/` containing a `SKILL.md` with YAML frontmatter (`name`, `description`).
+My personal [Agent Skills](https://agentskills.io) collection, in the layout the [`skills` CLI](https://github.com/vercel-labs/skills) discovers: each skill is a directory under `skills/` containing a `SKILL.md` with YAML frontmatter (`name`, `description`).
+
+Repo: <https://github.com/YeEeck/skills> — public, so `npx skills add` works with no authentication.
 
 ## Install a skill from this repo
 
 ```bash
-# from GitHub (after pushing)
-npx skills add <you>/skills --skill subagent-impl -g
+# from GitHub: one skill, into your user directory
+npx skills add YeEeck/skills --skill subagent-impl -g
 
-# or from a local clone
-npx skills add ./skills --skill subagent-impl -g
+# both skills at once
+npx skills add YeEeck/skills --skill subagent-impl --skill design-talk -g
+
+# see what's available without installing anything
+npx skills add YeEeck/skills --list
+
+# from a local clone (run from the repo root)
+npx skills add . --skill subagent-impl -g
+```
+
+Drop `-g` to install into the current project (`./.claude/skills/`, `./.agents/skills/`, …) instead of your user directory. `-a <agent>` picks a specific target agent, and `-y` skips the prompts (handy in scripts). Add `--skill '*'` to pull every skill in the repo.
+
+## Update / remove
+
+```bash
+npx skills update subagent-impl   # re-pull the latest commit of an installed skill
+npx skills remove subagent-impl   # uninstall
 ```
 
 ## Skills
